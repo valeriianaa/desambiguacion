@@ -1,7 +1,10 @@
 from sklearn.feature_extraction.text import CountVectorizer
-import numpy
+import numpy as np
 import xmltodict
 
+#ver jupyter
+#ver n-grams
+#ver este enlace util para el pipeline: https://medium.com/@ageitgey/natural-language-processing-is-fun-9a0bff37854e
 
 #visit https://www.journaldev.com/19392/python-xml-to-json-dict - to see how to manipulate the dictionary
 #Nota: algunas variables estan inicializadas en 1234 pero esto es incorrecto. Hallar el valor correcto y corregir.
@@ -31,38 +34,66 @@ def title_bag_of_words(an_array):
 
 def venue_to_value(an_array):
 	venue_array = []
-	venue_dictionary = {}
+	venue_matrix = []
 	for i in an_array:
 		venue_array.append(i['jconf'])
 	unique_venue_array = list(set(venue_array))
-	for index, item in enumerate(unique_venue_array):
-	 	venue_dictionary[index] = item
-	return venue_dictionary
-
+	for item in venue_array:
+		aux_row = []
+		for jitem in unique_venue_array:
+			if (item == jitem):
+				aux_row.append(1)
+			else:
+				aux_row.append(0)
+		venue_matrix.append(aux_row)
+	return venue_matrix  
 
 
 def author_existence(an_array):
+	aux_author_array = []
 	author_array = []
-	author_matrix = numpy.matrix
+	separate_authors = []
+	author_matrix = []
 	for i in an_array:
-		author_array.append(i['authors'])
-	for index,item in enumerate(author_array):
-		author_matrix[index] = item.split(",")
-	#splitted = author_array.split(",")
-	#unique_author_array = list(set(author_array))
+		aux_author_array.append(i['authors'])
+	for i in aux_author_array:
+		author_array.append(i.split(","))
+	for index, item in enumerate(author_array):
+		for element in item:
+			separate_authors.append(element)
+	unique_authors = list(set(separate_authors))
+	for item in author_array:
+		aux_row = []
+		for jitem in unique_authors:
+			if (jitem in item):
+				aux_row.append(1)
+			else:
+				aux_row.append(0)
+		author_matrix.append(aux_row)
+	#author_dictionary = {index : item for index,item in enumerate(set(author_array_aux))}
 	return author_matrix
+	
+
 
 def join_features_in_matrix(an_array):
-	initial_matrix = title_bag_of_words(an_array)
-	#usar un array de array
-	#append journal or conference values
+	final_matrix = []
+	titles = title_bag_of_words(an_array)
+	venues = venue_to_value(an_array)
+	authors = author_existence(an_array)
 	for index, item in enumerate(an_array):
-		f
-	return initial_matrix
+		aux_row = []
+		for jitem in np.asarray(titles[index]).flatten():
+			aux_row.append(jitem)
+		for jitem in venues[index]:
+			aux_row.append(jitem)
+		for jitem in authors[index]:
+			aux_row.append(jitem)
+		final_matrix.append(aux_row)
+	return np.matrix(final_matrix)
 
 
-print title_bag_of_words(array_for_clustering)
-print venue_to_value(array_for_clustering)
+#print title_bag_of_words(array_for_clustering)
+#print venue_to_value(array_for_clustering)
 print join_features_in_matrix(array_for_clustering)
 #print author_existence(array_for_clustering)
 
